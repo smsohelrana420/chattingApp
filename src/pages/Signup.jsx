@@ -1,29 +1,74 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router'
+import toast, { Toaster } from 'react-hot-toast';
 
 const Signup = () => {
+  const [userInfo,setUserInfo]=useState({
+    name:"",
+    email:"",
+    password:""
+  })
+
+  const handleName=(e)=>{
+    setUserInfo((prev)=>{
+      return {...prev, name:e.target.value}
+    })
+    
+  }
+  
+  const handleEmail=(e)=>{
+    setUserInfo((prev)=>{
+      return{...prev,email:e.target.value}
+    })
+  }
+  const handlePassword=(e)=>{
+    setUserInfo((prev)=>{
+      return{...prev,password:e.target.value}
+    })
+  }
+  // const [errormsg,setErrorMsg]=useState('')
+  const handleSignUp=(e)=>{
+    e.preventDefault()
+   if(!userInfo.name || !userInfo.email || !userInfo.password){
+    toast.error("all files are required")
+    // setErrorMsg('All Fields Are Required')
+    
+   }
+   else if(!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(userInfo.email)){
+    toast.error("Invalid Email Address")
+    
+   }else{
+    console.log(userInfo);
+    
+   }
+
+  }
+  
   return (
     <div className="bg-gray-500">
   <div className="min-h-screen flex flex-col items-center justify-center py-6 px-4">
+   <Toaster/>
     <div className="max-w-md w-full">
      <h1 className='text-center mb-4 text-4xl font-bold text-green-300'>Chatting App</h1>
       <div className="p-8 rounded-2xl bg-white shadow">
         <h2 className="text-slate-900 text-center text-3xl font-semibold">
           Sign up
         </h2>
-        <form className="mt-12 space-y-6">
+        <form onSubmit={handleSignUp}  className="mt-12 space-y-6">
           <div>
             <label className="text-slate-800 text-sm font-medium mb-2 block">
               Your Name
             </label>
             <div className="relative flex items-center">
               <input
+              onChange={handleName}
                 name="text"
                 type="text"
                 required=""
                 className="w-full text-slate-800 text-sm border border-slate-300 px-4 py-3 rounded-md outline-blue-600"
                 placeholder="Enter user name"
               />
+              
               <svg
               
                 xmlns="http://www.w3.org/2000/svg"
@@ -39,6 +84,7 @@ const Signup = () => {
                 />
               </svg>
             </div>
+            {/* {errormsg && <p>{errormsg}</p>} */}
           </div>
           <div>
             <label className="text-slate-800 text-sm font-medium mb-2 block">
@@ -46,8 +92,9 @@ const Signup = () => {
             </label>
             <div className="relative flex items-center">
               <input
+              onChange={handleEmail}
                 name="email"
-                type="email"
+                type="text"
                 required=""
                 className="w-full text-slate-800 text-sm border border-slate-300 px-4 py-3 rounded-md outline-blue-600"
                 placeholder="Your Email"
@@ -74,6 +121,7 @@ const Signup = () => {
             </label>
             <div className="relative flex items-center">
               <input
+              onChange={handlePassword}
                 name="password"
                 type="password"
                 required=""
@@ -107,7 +155,8 @@ const Signup = () => {
           </div>
           <div className="!mt-12">
             <button
-              type="button"
+          
+              type="submit"
               className="w-full py-2 px-4 text-[15px] font-medium tracking-wide rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none cursor-pointer"
             >
               Sign Up
