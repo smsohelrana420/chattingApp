@@ -1,27 +1,25 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router'
-import {  signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../firebase.config';
+import React, { useState } from "react";
+import { Link } from "react-router";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase.config";
 import toast, { Toaster } from "react-hot-toast";
-import { useNavigate } from 'react-router';
-import { useDispatch } from 'react-redux';
-import { userLoginInfo } from '../sliece/userSlice';
-
-
-
+import { useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
+import { userLoginInfo } from "../sliece/userSlice";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const Signin = () => {
+  const provider = new GoogleAuthProvider();
+  const dispatch = useDispatch();
 
-const dispatch=useDispatch()
- 
   const [userInfo, setUserInfo] = useState({
-      email: "",
-      password: "",
-    });
+    email: "",
+    password: "",
+  });
 
-    const navigate=useNavigate()
+  const navigate = useNavigate();
 
-    const handleEmail = (e) => {
+  const handleEmail = (e) => {
     setUserInfo((prev) => {
       return { ...prev, email: e.target.value };
     });
@@ -31,59 +29,75 @@ const dispatch=useDispatch()
       return { ...prev, password: e.target.value };
     });
   };
-    const handleLogin=(e)=>{
-      e.preventDefault()
-     if(userInfo.email && userInfo.password){
-signInWithEmailAndPassword(auth,userInfo.email,userInfo.password)
-  .then((userCredential) => {
-    // Signed in 
-    const user = userCredential.user;
-    // console.log(user);
-    if(user.emailVerified){
-      dispatch(userLoginInfo(user)) //set data in redux
-      // localStorage.setItem('login',JSON.stringify(user)) // setItem localStorage
-      navigate('/')
-
-    }else{
-      toast.success("Please Verify Your Email ")
-    }
-    // ...
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-    // const errorMessage = error.message;
-    console.log(errorCode)
-    if (errorCode.includes("auth/invalid-credential")) {
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (userInfo.email && userInfo.password) {
+      signInWithEmailAndPassword(auth, userInfo.email, userInfo.password)
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          // console.log(user);
+          if (user.emailVerified) {
+            dispatch(userLoginInfo(user)); //set data in redux
+            // localStorage.setItem('login',JSON.stringify(user)) // setItem localStorage
+            navigate("/");
+          } else {
+            toast.success("Please Verify Your Email ");
+          }
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          // const errorMessage = error.message;
+          console.log(errorCode);
+          if (errorCode.includes("auth/invalid-credential")) {
             toast.error("Invalid Email or Password");
             setUserInfo({
-             
               email: " ",
               password: "",
             });
           }
-  });
-     }else{
-      alert("Email & Password are Required")
-     }
+        });
+    } else {
+      alert("Email & Password are Required");
     }
-    
+  };
+  const handaleGoogleLogin = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const user = result.user;
+        dispatch(userLoginInfo(user));
+        navigate("/");
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        console.log(errorCode);
+      });
+  };
   return (
     <div className="bg-gray-500">
       <Toaster />
-      
+
       <div className="min-h-screen flex flex-col items-center justify-center py-6 px-4">
         <div className="max-w-md w-full">
           <h1 className="text-center mb-4 text-4xl font-bold text-green-300">
-            Chatting App 
+            Chatting App
           </h1>
 
           <div className="p-8 rounded-2xl bg-white shadow">
             <h2 className="text-slate-900 text-center text-3xl font-semibold">
               Sign in
             </h2>
+            <button
+              onClick={handaleGoogleLogin}
+              className="mt-8 bg-green-200 p-4 rounded-full font-bold text-xl cursor-pointer"
+            >
+              Sign In With Google
+            </button>
             <form onSubmit={handleLogin} className="mt-12 space-y-6">
               <div>
-                <label className="text-slate-800 text-sm font-medium mb-2 block">
+                <label className="text-slate-800 text-xl font-medium mb-2 block">
                   Your Email
                 </label>
                 <div className="relative flex items-center">
@@ -111,7 +125,7 @@ signInWithEmailAndPassword(auth,userInfo.email,userInfo.password)
                 </div>
               </div>
               <div>
-                <label className="text-slate-800 text-sm font-medium mb-2 block">
+                <label className="text-slate-800 text-xl font-medium mb-2 block">
                   Password
                 </label>
                 <div className="relative flex items-center">
@@ -184,6 +198,6 @@ signInWithEmailAndPassword(auth,userInfo.email,userInfo.password)
       </div>
     </div>
   );
-}
+};
 
-export default Signin
+export default Signin;
