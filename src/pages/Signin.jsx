@@ -7,6 +7,7 @@ import { useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 import { userLoginInfo } from "../sliece/userSlice";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getDatabase, ref, set } from "firebase/database";
 
 const Signin = () => {
   const provider = new GoogleAuthProvider();
@@ -16,6 +17,7 @@ const Signin = () => {
     email: "",
     password: "",
   });
+  const db = getDatabase();
 
   const navigate = useNavigate();
 
@@ -66,8 +68,20 @@ const Signin = () => {
     signInWithPopup(auth, provider)
       .then((result) => {
         const user = result.user;
-        dispatch(userLoginInfo(user));
-        navigate("/");
+        
+        
+        set(ref(db, "userslist/" + user.uid), {
+          name: user.displayName,
+          email: user.email,
+        })
+          .then(() => {
+            dispatch(userLoginInfo(user));
+            navigate("/");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        
       })
       .catch((error) => {
         // Handle Errors here.

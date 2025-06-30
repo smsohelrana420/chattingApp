@@ -7,16 +7,17 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "../firebase.config";
-
+import { getDatabase, ref, set } from "firebase/database";
 const Signup = () => {
   // const auth=getAuth(app);
   // auth
+  const db = getDatabase();
   const [userInfo, setUserInfo] = useState({
     name: "",
     email: "",
     password: "",
   });
- const navigate=useNavigate()
+  const navigate = useNavigate();
   const handleName = (e) => {
     setUserInfo((prev) => {
       return { ...prev, name: e.target.value };
@@ -53,17 +54,24 @@ const Signup = () => {
             })
               .then(() => {
                 // Signed up
-            const user = userCredential.user;
-            console.log(user);
-            navigate('/')
+                const user = userCredential.user;
+                console.log(user);
+                set(ref(db, "userslist/" + user.uid), {
+                  name: user.displayName,
+                  email: user.email,
+                })
+                  .then(() => {
+                    navigate("/login");
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                  });
 
-            // ...
+                // ...
               })
               .catch((error) => {
                 console.log(error);
-                
               });
-           
           });
         })
         .catch((error) => {

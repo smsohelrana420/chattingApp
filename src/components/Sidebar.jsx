@@ -3,12 +3,15 @@ import { useDispatch } from "react-redux";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { userLoginInfo } from "../sliece/userSlice";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const auth = getAuth();
   const dispatch = useDispatch();
-  // console.log(auth);
+  const user=useSelector((state)=>state.userLogin.value)
+   
+  
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -60,7 +63,7 @@ bg-white border-e border-gray-200 dark:bg-neutral-800 dark:border-neutral-700"
               href="#"
               aria-label="Brand"
             >
-              Brand
+             {user?.name}
             </a>
             <div className="lg:hidden -me-2">
               {/* Close Button */}
